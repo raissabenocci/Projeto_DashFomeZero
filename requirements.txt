@@ -9,3 +9,5 @@ haversine==2.7.0
 streamlit-folium==0.7.0
 Pillow==9.2.0
 itables==1.7.1
+inflection==0.5.1
+haversine==2.8.1
