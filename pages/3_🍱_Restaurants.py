@@ -336,34 +336,34 @@ def show_bestrestaurants_ScoreVotes( pricetype_item, df_aux, backgcolr , tagShow
 #
 #
 def obterdfaux_parasunburst( df1 ):
-        df_aux = ( df1.loc[ : , ['price_type','rating_category','restaurant','country_names','aggregate_rating'] ]
-                  .groupby( [ 'price_type','rating_category','country_names' ] )
-                  .agg( { 'restaurant': [ 'count' ], 'aggregate_rating':['mean'] } )
-             )
-        df_aux.columns = [ 'Quantidade Restaurantes','Avaliação Média' ]
-        df_aux = df_aux.reset_index()
-        df_aux.columns = [ 'Tipo Cardápio','Categoria Avaliação','Países','Quantidade Restaurantes','Avaliação Média' ]
-        df_aux = df_aux.reset_index().replace(0.0, 0.01)
-        return df_aux
-        
-    def sunbplot_cardapiocategoriaaval( df_aux ):    
-        fig1 = px.sunburst( df_aux,
-                           path=[ 'Tipo Cardápio', 'Categoria Avaliação'],
-                           values='Quantidade Restaurantes',
-                           color='Avaliação Média',
-                           color_continuous_scale='RdBu',
-                           color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
-        return fig1
-    
-    def sunbplot_paisescategoriaaval( df_aux ):    
-        fig2 = px.sunburst( df_aux,
-                           path=[ 'Países', 'Categoria Avaliação'],
-                           values='Quantidade Restaurantes',
-                           color='Avaliação Média',
-                           color_continuous_scale='RdBu',
-                           color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
-        return fig2
-
+    df_aux = ( df1.loc[ : , ['price_type','rating_category','restaurant','country_names','aggregate_rating'] ]
+              .groupby( [ 'price_type','rating_category','country_names' ] )
+              .agg( { 'restaurant': [ 'count' ], 'aggregate_rating':['mean'] } )
+         )
+    df_aux.columns = [ 'Quantidade Restaurantes','Avaliação Média' ]
+    df_aux = df_aux.reset_index()
+    df_aux.columns = [ 'Tipo Cardápio','Categoria Avaliação','Países','Quantidade Restaurantes','Avaliação Média' ]
+    df_aux = df_aux.reset_index().replace(0.0, 0.01)
+    return df_aux
+#
+def sunbplot_cardapiocategoriaaval( df_aux ):    
+    fig1 = px.sunburst( df_aux,
+                       path=[ 'Tipo Cardápio', 'Categoria Avaliação'],
+                       values='Quantidade Restaurantes',
+                       color='Avaliação Média',
+                       color_continuous_scale='RdBu',
+                       color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
+    return fig1
+#
+def sunbplot_paisescategoriaaval( df_aux ):    
+    fig2 = px.sunburst( df_aux,
+                       path=[ 'Países', 'Categoria Avaliação'],
+                       values='Quantidade Restaurantes',
+                       color='Avaliação Média',
+                       color_continuous_scale='RdBu',
+                       color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
+    return fig2
+#
 #
 #
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
