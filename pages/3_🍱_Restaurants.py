@@ -307,6 +307,64 @@ def boxplotChart( df_aux, cols , y_axis_name , boxplot_width, boxplot_height ):
     return fig
 #
 #
+def show_bestrestaurants_ScoreVotes( pricetype_item, df_aux, backgcolr , tagShowHTML ):
+    '''  FUNÇÃO Encontra os 5 restaurantes com seus países considerados melhores pelos maiores Avalição Média e Quantidade de Votos '''
+    df_auxtmp = df_aux.loc[  df_aux['price_type']==pricetype_item, : ].reset_index(drop=True)
+    df_auxtmp['restaurant (country)'] = '- ' + df_auxtmp['restaurant_name'] + ' (' + df_auxtmp['country_names'] + ')'
+    df_auxtmp = df_auxtmp.loc[ 0:4, ['restaurant (country)','aggregate_rating mean','votes sum'] ]
+    df_auxtmp.columns = ['Restaurante (País)','Avaliação Média','Qtd de Votos Média']
+    df_auxtmp = df_auxtmp.reset_index(drop=True)
+    #
+    mean_avalc = df_auxtmp['Avaliação Média'].mean().round(2)
+    sum_votos = np.round(df_auxtmp['Qtd de Votos Média'].sum(),2)
+    list_rest = str(list(df_auxtmp['Restaurante (País)'])).replace('[','').replace(']','').replace('\'','').replace('\"','').replace(',','<br>')
+    #
+    html = f'<div> (<span style="font-size: 14px; font-weight: bold; text-align: center;">Avaliação média: {mean_avalc}; Média de Votos: {sum_votos}</span>) <br></div>'
+    html += f'<div> <span style="font-size: 16px; text-align: left;">{list_rest}</span> </div>' 
+    #
+    st.markdown(
+        f"""
+        <div style="padding: 10px; background-color: {backgcolr}; height: 330px;">
+            <div style="font-size: 18px; font-weight: bold; text-align: center; line-height:38px" > Cardápio {pricetype_item.capitalize()} <br></div>
+            <div style="font-size: 13px; text-align: center;"> Avaliação: {mean_avalc} | Votos: {sum_votos}  <br> <br></div>
+            <div style="font-size: 14px; text-align: left; line-height:2 "> {list_rest} </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    return df_auxtmp
+#
+#
+def obterdfaux_parasunburst( df1 ):
+        df_aux = ( df1.loc[ : , ['price_type','rating_category','restaurant','country_names','aggregate_rating'] ]
+                  .groupby( [ 'price_type','rating_category','country_names' ] )
+                  .agg( { 'restaurant': [ 'count' ], 'aggregate_rating':['mean'] } )
+             )
+        df_aux.columns = [ 'Quantidade Restaurantes','Avaliação Média' ]
+        df_aux = df_aux.reset_index()
+        df_aux.columns = [ 'Tipo Cardápio','Categoria Avaliação','Países','Quantidade Restaurantes','Avaliação Média' ]
+        df_aux = df_aux.reset_index().replace(0.0, 0.01)
+        return df_aux
+        
+    def sunbplot_cardapiocategoriaaval( df_aux ):    
+        fig1 = px.sunburst( df_aux,
+                           path=[ 'Tipo Cardápio', 'Categoria Avaliação'],
+                           values='Quantidade Restaurantes',
+                           color='Avaliação Média',
+                           color_continuous_scale='RdBu',
+                           color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
+        return fig1
+    
+    def sunbplot_paisescategoriaaval( df_aux ):    
+        fig2 = px.sunburst( df_aux,
+                           path=[ 'Países', 'Categoria Avaliação'],
+                           values='Quantidade Restaurantes',
+                           color='Avaliação Média',
+                           color_continuous_scale='RdBu',
+                           color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
+        return fig2
+
+#
 #
 # -----------------------------------------------------------------------------------------------------------------------------------------------------
 print( "\n================================\nUsuário acessou a página Restaurants" )
@@ -443,34 +501,6 @@ with st.container():
     #
     col1, col2, col3, col4 = st.columns( 4 )
     #
-    def show_bestrestaurants_ScoreVotes( pricetype_item, df_aux, backgcolr , tagShowHTML ):
-        '''  FUNÇÃO Encontra os 5 restaurantes com seus países considerados melhores pelos maiores Avalição Média e Quantidade de Votos '''
-        df_auxtmp = df_aux.loc[  df_aux['price_type']==pricetype_item, : ].reset_index(drop=True)
-        df_auxtmp['restaurant (country)'] = '- ' + df_auxtmp['restaurant_name'] + ' (' + df_auxtmp['country_names'] + ')'
-        df_auxtmp = df_auxtmp.loc[ 0:4, ['restaurant (country)','aggregate_rating mean','votes sum'] ]
-        df_auxtmp.columns = ['Restaurante (País)','Avaliação Média','Qtd de Votos Média']
-        df_auxtmp = df_auxtmp.reset_index(drop=True)
-        #
-        mean_avalc = df_auxtmp['Avaliação Média'].mean().round(2)
-        sum_votos = np.round(df_auxtmp['Qtd de Votos Média'].sum(),2)
-        list_rest = str(list(df_auxtmp['Restaurante (País)'])).replace('[','').replace(']','').replace('\'','').replace('\"','').replace(',','<br>')
-        #
-        html = f'<div> (<span style="font-size: 14px; font-weight: bold; text-align: center;">Avaliação média: {mean_avalc}; Média de Votos: {sum_votos}</span>) <br></div>'
-        html += f'<div> <span style="font-size: 16px; text-align: left;">{list_rest}</span> </div>' 
-        #
-        st.markdown(
-            f"""
-            <div style="padding: 10px; background-color: {backgcolr}; height: 330px;">
-                <div style="font-size: 18px; font-weight: bold; text-align: center; line-height:38px" > Cardápio {pricetype_item.capitalize()} <br></div>
-                <div style="font-size: 13px; text-align: center;"> Avaliação: {mean_avalc} | Votos: {sum_votos}  <br> <br></div>
-                <div style="font-size: 14px; text-align: left; line-height:2 "> {list_rest} </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        return df_auxtmp
-    #
-    
     with col1:
         # 'Melhores Restaurantes Gourmet'
         pricetype_item = pricetype[0]
@@ -501,35 +531,6 @@ with st.container():
     markdown_content = f'<h3 style="text-align: center;"> Quantidade de Restaurantes <br>  <br> </h3>'
     st.markdown(  markdown_content,  unsafe_allow_html=True  )
     #
-    def obterdfaux_parasunburst( df1 ):
-        df_aux = ( df1.loc[ : , ['price_type','rating_category','restaurant','country_names','aggregate_rating'] ]
-                  .groupby( [ 'price_type','rating_category','country_names' ] )
-                  .agg( { 'restaurant': [ 'count' ], 'aggregate_rating':['mean'] } )
-             )
-        df_aux.columns = [ 'Quantidade Restaurantes','Avaliação Média' ]
-        df_aux = df_aux.reset_index()
-        df_aux.columns = [ 'Tipo Cardápio','Categoria Avaliação','Países','Quantidade Restaurantes','Avaliação Média' ]
-        df_aux = df_aux.reset_index().replace(0.0, 0.01)
-        return df_aux
-        
-    def sunbplot_cardapiocategoriaaval( df_aux ):    
-        fig1 = px.sunburst( df_aux,
-                           path=[ 'Tipo Cardápio', 'Categoria Avaliação'],
-                           values='Quantidade Restaurantes',
-                           color='Avaliação Média',
-                           color_continuous_scale='RdBu',
-                           color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
-        return fig1
-    
-    def sunbplot_paisescategoriaaval( df_aux ):    
-        fig2 = px.sunburst( df_aux,
-                           path=[ 'Países', 'Categoria Avaliação'],
-                           values='Quantidade Restaurantes',
-                           color='Avaliação Média',
-                           color_continuous_scale='RdBu',
-                           color_continuous_midpoint= np.average( df_aux['Avaliação Média']) )
-        return fig2
-
     df_aux = obterdfaux_parasunburst( df1 )
     #
     col1, col2 = st.columns( 2 )
