@@ -15,10 +15,6 @@ import base64  # Add this line to import the base64 module
 #
 import inflection  # after installing in Miniconda using:  conda install conda-forge::inflection
 #
-# Set the locale to Brazilian Portuguese -  this allows the thousando separator to be '.' and the decimal separator ','
-import locale
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-#
 from haversine import haversine  # para calcular a distância entre dois pontos geográficos
 #
 import os
